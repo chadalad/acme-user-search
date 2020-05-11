@@ -1,22 +1,145 @@
 const app = document.querySelector('#app');
-const API = 'https://acme-users-api-rev.herokuapp.com/api/users/search/Glo';
+const searchAPI = 'https://acme-users-api-rev.herokuapp.com/api';
+
+/*
+window.addEventListener('hashchange', () => {
+    loadData();
+})
+*/
 
 const createNode = (type) => document.createElement(type);
 
-fetch(API)
-    .then(response => {
-        return response.json()
-    })
-    .then( data => {
-        console.log(data);
-        render(data.users);
-    })
+// goals: 
+// 0. capture string input (workshop from J)
+// 1. create a hash from the input
+// 2. use that hash to update URL
+// 3. use clear to set default
 
-const pageHeader = () => {
+
+const createPageHeader = () => {
     const pageName = createNode('h1');
     pageName.innerText = 'Acme User Search';
     app.append(pageName);
     return pageName;
+}
+
+const createSearchBar = () => {
+    const form = createNode('form');
+    const search = createNode('input');
+    const clearContainer = createNode('div');
+    const clear = createNode('a');
+    let inputStr = '';
+
+    search.setAttribute('placeholder','input search term');
+
+
+
+    form.addEventListener('input', ev=> {
+        ev.preventDefault();
+        console.log(ev.target.value);
+        inputStr = ev.target.value;
+
+        if(ev.keyCode === 13) {
+            ev.preventDefault();
+            loadData(inputStr);
+        }
+    })
+
+    /*
+    inputStr = search.addEventListener('input', ev => {
+        setTimeout(resolve => {
+
+        })
+        loadData(ev.target.value);
+    
+    })
+    //loadData(inputStr);
+    */
+    /*
+   search.addEventListener('input', event => {
+        //console.log(event.target.value);
+        //event.preventDefault();
+        inputStr = event.target.value;
+        console.log(inputStr);
+
+        if (event.keyCode === 13) { //checks if pressed key is enter
+            event.preventDefault();
+            console.log('target', inputStr)
+            //loadData(inputStr);
+            
+
+            fetch(`${searchAPI}/users/search/${inputStr}`)
+            .then(response => {
+                return response.json()
+            })
+            .then( data => {
+                console.log(data);
+                render(data.users);
+            })
+
+        }
+
+   })
+   */
+
+
+    /*
+    search.addEventListener('input', event => {
+        //console.log(event.target.value);
+        event.preventDefault();
+        inputStr = event.target.value;
+        console.log(inputStr);
+        
+        
+        /*
+        search.addEventListener('change', enterEv => {
+            enterEv.preventDefault();
+            //loadData(inputStr);
+            fetch(`${searchAPI}/users/search/${inputStr}`)
+       .then(response => {
+           return response.json()
+       })
+       .then( data => {
+           console.log(data);
+           render(data.users);
+       })
+
+        })
+        */
+        /*
+       
+        if (event.keyCode === 13) { //checks if pressed key is enter
+            
+            console.log('target', inputStr)
+            //loadData(inputStr);
+            //event.preventDefault();
+
+            fetch(`${searchAPI}/users/search/${inputStr}`)
+            .then(response => {
+                return response.json()
+            })
+            .then( data => {
+                console.log(data);
+                render(data.users);
+            })
+
+        }
+        
+    })
+    */
+    
+    // upon hitting enter, convert input str
+
+    clear.innerText = 'Clear';
+    //clear.setAttribute('href', 'https://acme-users-api-rev.herokuapp.com/api/users/search/0')
+    clear.addEventListener('click', event => {
+        loadData();
+    })
+
+    clearContainer.append(clear);
+    form.append(search);
+    form.append(clearContainer);
+    app.append(form);
 }
 
 const tableCreator = (users) => {
@@ -97,15 +220,33 @@ const avatarCreator = (imgSrc) => {
 
 const render = (users) => {
     console.log(users);
-    pageHeader();
+    app.innerHTML = '';
+    createPageHeader();
+    createSearchBar();
     tableCreator(users);
-
-    const html = users.map( user => {
-        return `
-            <tr>
-                <td>${user.email}</td>
-            </tr>
-        `;
-    }).join('');
-    console.log(html);
 }
+
+const loadData = (inputStr) => {
+    //const hash = window.location.hash || 'Glo';
+    //let endPoint = '';
+    console.log(inputStr);
+    if (inputStr === undefined) inputStr = '0';
+    //console.log(inputStr);
+    //endPoint = 'Glo';
+    //inputStr = 'isi';
+    /*
+    const hash = window.location.hash || '0';
+    console.log(window.location);
+    console.log(hash, hash.length);
+    */
+    fetch(`${searchAPI}/users/search/${inputStr}`)
+    .then(response => {
+        return response.json()
+    })
+    .then( data => {
+        console.log(data);
+        render(data.users);
+    })
+}
+
+loadData();
